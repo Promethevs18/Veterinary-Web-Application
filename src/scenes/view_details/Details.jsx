@@ -3,11 +3,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import { Formik, Form } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
-import { Avatar, Box, Button, TextField } from "@mui/material";
+import { Avatar, Box, Button, TextField, Typography, colors, useTheme } from "@mui/material";
 import Header from "../../components/Header";
-import { get, getDatabase, ref, remove, update } from "firebase/database";
+import { get, getDatabase, onValue, ref, remove, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser"
+import { tokens } from "../../theme";
+import { DataGrid } from "@mui/x-data-grid";
 
 const initialValues = {
   ownerName: "",
@@ -25,17 +27,25 @@ const detailSchema = yup.object().shape({
 });
 
 const Details = ({ user }) => {
+
   const db = getDatabase();
   const [image, setImage] = useState(
     "https://firebasestorage.googleapis.com/v0/b/dental-management-system-2dccb.appspot.com/o/Profile-pic.png?alt=media&token=5e0d4817-042b-4cf3-b31d-fb3a1d675ec1"
   );
 
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
   const formikRef = useRef(null);
   const navigate = useNavigate();
   const [beforeDate, setBefore] = useState("");
+  const [rows, setRows] = useState([]);
 
   //ETO YUNG KUNG MAGSEARCH NG PATIENT
   const search = async (name_search, pet_search) => {
+
+    setBefore("")
+    let prevHolder = [];
     const patient = ref(
       db,
       "Owners and Pets/" +
@@ -47,16 +57,29 @@ const Details = ({ user }) => {
       "Owners/" + name_search + "/Booking"
     );
 
+    const previous = ref(
+      db, "Owners/" + name_search + "/Previous Bookings" 
+    );
+
     const take = await get(patient);
     const takeBooking = await get(booking)
+  
+
+    // for getting the previous bookings
+      onValue(previous, (snappy) =>{
+        snappy.forEach((prevSnap) =>{
+          prevHolder.push({
+            id: prevSnap.key,
+            ...prevSnap.val()
+          })
+        })
+        setRows(prevHolder)
+      })
 
     if (take.exists()) {
       const patientData = take.val();
       const bookingData = takeBooking.val();
       
-      //this is for taking the previous date na gagamitin for rebooking
-      setBefore(bookingData.sched_date);
-
       const updatedIni = {
         petAddress: patientData.petAddress || "",
         changed: patientData.changed || "",
@@ -66,7 +89,7 @@ const Details = ({ user }) => {
         petBirth: patientData.petBirth || "",
         petAge: patientData.petAge || "",
         petImage: patientData.petImage || "",
-        sched_date: bookingData.sched_date || "",
+        sched_date: bookingData ? bookingData.sched_date || "No upcoming appointment" : "No upcoming appointment",
       };
 
       //for updating the fields with data taken from the database
@@ -79,6 +102,12 @@ const Details = ({ user }) => {
       formikRef.current.setFieldValue("petAge", updatedIni.petAge);
       formikRef.current.setFieldValue("sched_date", updatedIni.sched_date);
       
+      if(bookingData !== null){
+        //this is for taking the previous date na gagamitin for rebooking
+        setBefore(bookingData.sched_date);
+      }
+      console.log(beforeDate)
+  
       setImage(take.val().petImage);
     } else {
       toast.error("Cannot find patient");
@@ -157,6 +186,14 @@ const Details = ({ user }) => {
     navigate("/dashboard");
   };
 
+
+  // Eto naman for the rows of the datagrid
+  const columns = [
+    {field:"patients", headerName: "Patients", flex: 1},
+    {field:"sched_date", headerName: "Scheduled Date", flex: 1},
+    {field:"sched_time", headerName: "Scheduled Time", flex: 1},
+    {field:"services", headerName: "Services performed", flex: 1}
+  ]
   return (
     <Box m="20px">
       <Header
@@ -307,11 +344,13 @@ const Details = ({ user }) => {
                 sx={{ gridColumn: "span 1" }}
               />
             </Box>
-
+            {/* Buttons */}
             <Box display="flex" justifyContent="center" m="50px">
+            {beforeDate !== "" && (
               <Button type="submit" color="secondary" variant="contained">
-                Update Patient Information
+                Update Patient Booking
               </Button>
+              )}
               {values.ownerEmail !== "" && (
                 <span style={{ marginLeft: "20px" }}>
                   <Button
@@ -328,6 +367,47 @@ const Details = ({ user }) => {
           </Form>
         )}
       </Formik>
+  
+       <Box m="50px" display="flex" justifyContent="center">
+              <Typography 
+                variant="h2"
+                color={colors.eggshell[100]}
+                fontWeight="bold"
+                m="20px">
+                  Owner's Previous appointments
+                </Typography>
+        </Box>
+            <Box m="40px 0 0 0" height="50vh" sx={{
+                "& .MuiDataGrid-root": {
+                  border: "none",
+                },
+                "& .MuiDataGrid-cell": {
+                  borderBottom: "none",
+                },
+                "& .name-column--cell": {
+                  color: colors.moss[300],
+                },
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: colors.quincy[700],
+                  borderBottom: "none",
+                },
+                "& .MuiDataGrid-virtualScroller": {
+                  backgroundColor: colors.eggshell[700],
+                },
+                "& .MuiDataGrid-footerContainer": {
+                  borderTop: "none",
+                  backgroundColor: colors.quincy[700],
+                },
+              }} >
+      
+            <DataGrid
+               rows={rows}
+               columns={columns}
+            />
+            
+            </Box>
+  
+     
     </Box>
   );
 };
