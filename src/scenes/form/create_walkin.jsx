@@ -113,7 +113,7 @@ const Form = () => {
                 onBlur={handleBlur}
                 onChange={handleChange}
                 value={values.owner}
-                name="owner"
+                name="ownerName"
                 error={!!touched.owner && !!errors.owner}
                 helperText={touched.owner && errors.owner}
                 sx={{ gridColumn: "span 2" }}

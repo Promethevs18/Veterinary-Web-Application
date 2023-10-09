@@ -40,6 +40,7 @@ const Details = ({ user }) => {
   const navigate = useNavigate();
   const [beforeDate, setBefore] = useState("");
   const [rows, setRows] = useState([]);
+  const [bookTime, setBookTime] = useState("");
 
   //ETO YUNG KUNG MAGSEARCH NG PATIENT
   const search = async (name_search, pet_search) => {
@@ -106,7 +107,7 @@ const Details = ({ user }) => {
         //this is for taking the previous date na gagamitin for rebooking
         setBefore(bookingData.sched_date);
       }
-      console.log(beforeDate)
+      setBookTime(bookingData.sched_time)
   
       setImage(take.val().petImage);
     } else {
@@ -137,6 +138,7 @@ const Details = ({ user }) => {
                 details.ownerName
             ),
             {
+              sched_time: bookTime,
               ...details,
               changed: "Yes",
             },
