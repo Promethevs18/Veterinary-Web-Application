@@ -1,0 +1,7 @@
+these are the depedencies for dental_web_cms
+
+yarn add react-pro-sidebar@0.7.1 @mui/material @emotion/react @emotion/styled @mui/x-data-grid @mui/icons-material react-router-dom@6 firebase react-toastify react-pro-sidebar formik yup @fullcalendar/core @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/list @react-google-maps/api @nivo/core @nivo/bar @nivo/pie @nivo/geo firebase-tools sass
+--save-dev @babel/plugin-proposal-private-property-in-object --legacy-peer-deps
+
+npm install react-pro-sidebar@0.7.1 @mui/material @emotion/react @emotion/styled @mui/x-data-grid @mui/icons-material react-router-dom@6 firebase react-toastify react-pro-sidebar formik yup @fullcalendar/core @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/list @react-google-maps/api @nivo/core @nivo/bar @nivo/pie @nivo/geo firebase-tools sass
+--save-dev @babel/plugin-proposal-private-property-in-object --legacy-peer-deps
