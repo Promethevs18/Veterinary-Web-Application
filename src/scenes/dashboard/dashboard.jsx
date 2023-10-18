@@ -434,7 +434,7 @@ const Dashboard = ({ user }) => {
               parsedDate.setHours(parseInt(hours));
               parsedDate.setMinutes(parseInt(minutes));
               return {
-                title: books.ownerName,
+                title: books.owner,
                 start: parsedDate.toISOString(),
               };
             }

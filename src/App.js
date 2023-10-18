@@ -1,7 +1,7 @@
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import { auth } from "./firebase";
@@ -42,7 +42,7 @@ function App() {
           <Sidebar setActive={setActive} active={active} user={user} />
           <main className="content">
             <Topbar />
-            <ToastContainer position="top-center" />
+            <ToastContainer position="top-center" theme="colored" transition={Zoom} autoClose={2000}/>
             <Routes setUser={user}>
               <Route
                 path="/dashboard"
@@ -59,7 +59,7 @@ function App() {
               />
               <Route path="/about" element={<About user={user} />} />
               <Route path="/walk-in" element={<Form user={user} />} />
-              <Route path="/" element={<Authentication setUser={user} />} />
+              <Route path="/" element={<Authentication setUser={setUser} setActive={setActive}/>} />
               <Route path="/details" element={<Details user={user} />} />
               <Route path="/lister" element={<Lister user={user} />} />
               <Route path="/addservice" element={<AddService user={user} />} />

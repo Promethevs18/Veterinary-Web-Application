@@ -1,4 +1,4 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, useScrollTrigger } from "@mui/material";
 import { Formik, Form } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
@@ -6,31 +6,51 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
+import { useState } from "react";
 
 const initialValues = {
   email: "",
   password: "",
+  answer: ""
 };
 
 const userSchema = yup.object().shape({
   email: yup.string().email("Invalid Email").required("This field is required"),
   password: yup.string().required("This field is required"),
+
 });
 
 const Authentication = ({ setUser, setActive }) => {
   const navigate = useNavigate();
+  const [securityShow, setSecurityShow] = useState(false)
+  const [securityValue, setSecurityValue] = useState("");
+
+  const showQuestion = () =>{
+    setSecurityShow(true)
+  }
+
+  const handleValueChange = (event) =>{
+    setSecurityValue(event.target.value)
+  }
   const handleFormSubmit = async (values) => {
-    const { user } = await signInWithEmailAndPassword(
-      auth,
-      values.email,
-      values.password
-    ).catch((error) => {
-      toast.error(error.message);
-    });
-    toast.success("You have successfully signed in");
-    navigate("/dashboard");
-    setUser(user);
-    setActive("Dashboard");
+    
+    if(securityValue === "Name"){
+      const { user } = await signInWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      ).catch((error) => {
+        toast.error(error.message);
+      });
+      toast.success("You have successfully signed in");
+      navigate("/dashboard");
+      setUser(user);
+      setActive("Dashboard");
+    }
+    else{
+      toast.error("Security answer unaccepted. Try again")
+    }
+   
   };
 
   return (
@@ -43,7 +63,7 @@ const Authentication = ({ setUser, setActive }) => {
       <Formik
         initialValues={initialValues}
         validationSchema={userSchema}
-        onSubmit={handleFormSubmit}
+        onSubmit={showQuestion}
       >
         {({ values, errors, touched, handleBlur, handleChange }) => (
           <Form>
@@ -84,6 +104,25 @@ const Authentication = ({ setUser, setActive }) => {
                 Sign in
               </Button>
             </Box>
+            {securityShow ? (
+              <Box m="20px" display="flex" justifyContent="center">
+                <Box m="20px" display="grid">
+                    <Box m="20px" fontSize="15px">Security Question: What do you have, but people use it more than you do?
+                    </Box>
+                    {<TextField
+                    variant="filled"
+                    type="text"
+                    value={securityValue}
+                    name="securityValue"
+                    onChange={handleValueChange}
+                    />}
+                       <Button color="secondary" variant="contained" onClick={() => handleFormSubmit({email: values.email, password: values.password})}>
+                          Confirm Answer
+                      </Button>
+                </Box>
+             
+              </Box>
+            ): null}
           </Form>
         )}
       </Formik>
