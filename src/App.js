@@ -46,7 +46,7 @@ function App() {
             <Routes setUser={user}>
               <Route
                 path="/dashboard"
-                element={<Dashboard setActive={setActive} user={user} />}
+                element={<Dashboard setActive={active} user={user} active={active} />}
               />
               <Route
                 path="/Appointments"

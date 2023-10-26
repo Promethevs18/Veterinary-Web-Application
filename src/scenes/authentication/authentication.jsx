@@ -35,17 +35,24 @@ const Authentication = ({ setUser, setActive }) => {
   const handleFormSubmit = async (values) => {
     
     if(securityValue === "Name"){
-      const { user } = await signInWithEmailAndPassword(
+      const result = await signInWithEmailAndPassword(
         auth,
         values.email,
         values.password
       ).catch((error) => {
         toast.error(error.message);
       });
-      toast.success("You have successfully signed in");
-      navigate("/dashboard");
-      setUser(user);
-      setActive("Dashboard");
+      if(result){
+        const { user } = result
+        toast.success("You have successfully signed in");
+        navigate("/dashboard");
+        setUser(user);
+        setActive("Dashboard");
+      }
+      else{
+        toast.error("Credentials invalid. Try again")
+      }
+
     }
     else{
       toast.error("Security answer unaccepted. Try again")

@@ -100,10 +100,8 @@ const Dashboard = ({ user }) => {
   //This is to get all the pets and their count 
   useEffect(() =>{
     const getAll = onValue(ref(db, "Owners and Pets/"),
-    (snapshot) =>{
-      
+    (snapshot) =>{  
       const breedCounts = [];
-
       snapshot.forEach((elemento) =>{
         elemento.forEach((element)=>{
           const breed = element.child("breed").val();
@@ -135,8 +133,7 @@ const Dashboard = ({ user }) => {
   //This is to get all the pet's addresses and their count
   useEffect(() =>{
     const getAll = onValue(ref(db, "Owners and Pets/"),
-    (snapshot) =>{
-      
+    (snapshot) =>{     
       const addressCount = [];
       snapshot.forEach((elemento) =>{
         elemento.forEach((element)=>{

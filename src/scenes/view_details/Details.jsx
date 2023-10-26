@@ -12,7 +12,7 @@ import { tokens } from "../../theme";
 import { DataGrid } from "@mui/x-data-grid";
 
 const initialValues = {
-  ownerName: "",
+  owner: "",
   petName: "",
   petAddress: "",
   ownerContact: "",
@@ -23,7 +23,7 @@ const initialValues = {
 };
 
 const detailSchema = yup.object().shape({
-  ownerName: yup.string().required("This field is required"),
+  owner: yup.string().required("This field is required"),
 });
 
 const Details = ({ user }) => {
@@ -86,8 +86,8 @@ const Details = ({ user }) => {
         changed: patientData.changed || "",
         ownerContact: patientData.ownerContact || "",
         ownerEmail: patientData.ownerEmail || "",
-        ownerName: patientData.ownerName || "",
         petBirth: patientData.petBirth || "",
+        owner: patientData.owner || "",
         petAge: patientData.petAge || "",
         petImage: patientData.petImage || "",
         sched_date: bookingData ? bookingData.sched_date || "No upcoming appointment" : "No upcoming appointment",
@@ -98,17 +98,21 @@ const Details = ({ user }) => {
       formikRef.current.setFieldValue("changed", updatedIni.changed);
       formikRef.current.setFieldValue("ownerContact", updatedIni.ownerContact);
       formikRef.current.setFieldValue("ownerEmail", updatedIni.ownerEmail);
-      formikRef.current.setFieldValue("ownerName", updatedIni.ownerName);
+      formikRef.current.setFieldValue("owner", updatedIni.owner);
       formikRef.current.setFieldValue("petBirth", updatedIni.petBirth);
       formikRef.current.setFieldValue("petAge", updatedIni.petAge);
       formikRef.current.setFieldValue("sched_date", updatedIni.sched_date);
       
-      if(bookingData !== null){
-        //this is for taking the previous date na gagamitin for rebooking
-        setBefore(bookingData.sched_date);
-      }
-      setBookTime(bookingData.sched_time)
-  
+      if (bookingData !== null) {
+        if (bookingData.sched_time !== null) {
+          setBookTime(bookingData.sched_time);
+        } else {
+      setBookTime("");
+        }
+      } else {
+     setBookTime("");
+    }
+    setBefore(bookingData.sched_time);
       setImage(take.val().petImage);
     } else {
       toast.error("Cannot find patient");
@@ -125,9 +129,9 @@ const Details = ({ user }) => {
       if (details.sched_date !== null) {
         try {
           //this code is to remove the old booking
-          remove(ref(db, "Bookings/" + beforeDate + "/" + details.ownerName));
+          remove(ref(db, "Bookings/" + beforeDate + "/" + details.owner));
           //this code is for updating the date ng patient
-          update(ref(db, "Owners/"+ details.ownerName + "/Booking" ), {sched_date : details.sched_date})
+          update(ref(db, "Owners/"+ details.owner + "/Booking" ), {sched_date : details.sched_date})
           //eto ay i update ang booking para sa dashboard reference
           await update(
             ref(
@@ -135,7 +139,7 @@ const Details = ({ user }) => {
               "Bookings/" +
                 details.sched_date +
                 "/" +
-                details.ownerName
+                details.owner
             ),
             {
               sched_time: bookTime,
@@ -154,10 +158,10 @@ const Details = ({ user }) => {
           //kasama rito ang serviceID, templateID, at yung PublicID, pati narin yung templateParams
           emailjs
             .send(
-              "service_8a7jy2s",
-              "template_gcoxliu",
+              "service_n9xgj4k",
+              "template_il5gkh8",
               templateParams,
-              "p4xfnVj9crR2omWTm"
+              "URnwalukoM1o5-Oay"
             )
             .then(() => {
               toast.success(
@@ -228,13 +232,13 @@ const Details = ({ user }) => {
                 variant="filled"
                 fullWidth
                 type="text"
-                value={values.ownerName}
+                value={values.owner}
                 onBlur={handleBlur}
                 onChange={handleChange}
                 label="Owner's Name"
-                name="ownerName"
-                error={!!touched.ownerName && !!errors.ownerName}
-                helperText={touched.ownerName && errors.ownerName}
+                name="owner"
+                error={!!touched.owner && !!errors.owner}
+                helperText={touched.owner && errors.owner}
                 sx={{ maxWidth: "50%", marginRight: "15px" }}
               />
 
@@ -257,7 +261,7 @@ const Details = ({ user }) => {
                 variant="contained"
                 color="secondary"
                 startIcon={<SearchIcon />}
-                onClick={() => search(values.ownerName, values.petName)}
+                onClick={() => search(values.owner, values.petName)}
               ></Button>
             </Box>
             <Box
@@ -359,7 +363,7 @@ const Details = ({ user }) => {
                     color="reddish"
                     variant="contained"
                     m="20px"
-                    onClick={() => handleDelete(values.ownerName, values.petName)}
+                    onClick={() => handleDelete(values.owner, values.petName)}
                   >
                     Delete Record Permanently
                   </Button>
