@@ -44,8 +44,6 @@ const Details = ({ user }) => {
 
   //ETO YUNG KUNG MAGSEARCH NG PATIENT
   const search = async (name_search, pet_search) => {
-
-    setBefore("")
     let prevHolder = [];
     const patient = ref(
       db,
@@ -102,18 +100,22 @@ const Details = ({ user }) => {
       formikRef.current.setFieldValue("petBirth", updatedIni.petBirth);
       formikRef.current.setFieldValue("petAge", updatedIni.petAge);
       formikRef.current.setFieldValue("sched_date", updatedIni.sched_date);
-      
+
+      setImage(take.val().petImage);
+
       if (bookingData !== null) {
-        if (bookingData.sched_time !== null) {
+        if (bookingData.sched_time !== null || bookingData.sched_date !== null) {
+          setBefore(bookingData.sched_date);
           setBookTime(bookingData.sched_time);
         } else {
       setBookTime("");
+      setBefore("")
         }
       } else {
      setBookTime("");
-    }
-    setBefore(bookingData.sched_time);
-      setImage(take.val().petImage);
+     setBefore("")
+      }
+
     } else {
       toast.error("Cannot find patient");
     }

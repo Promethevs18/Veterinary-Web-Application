@@ -73,7 +73,7 @@ const Team = () => {
       flex: 1,
       cellClassName: "name-column--cell",
     },
-    { field: "ownerName", headerName: "Owner's Name", flex: 1 },
+    { field: "owner", headerName: "Owner's Name", flex: 1 },
     { field: "petAddress", headerName: "Address", flex: 1 },
     { field: "petBirth", headerName: "Birthday", flex: 1 },
     { field: "ownerContact", headerName: "Owner's Phone Number", flex: 1 },
