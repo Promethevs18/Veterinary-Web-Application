@@ -20,6 +20,7 @@ const initialValues = {
   petBirth: "",
   petAge: "",
   sched_date: "",
+  sched_time: "",
 };
 
 const detailSchema = yup.object().shape({
@@ -40,7 +41,7 @@ const Details = ({ user }) => {
   const navigate = useNavigate();
   const [beforeDate, setBefore] = useState("");
   const [rows, setRows] = useState([]);
-  const [bookTime, setBookTime] = useState("");
+  const [serbisyo, setServices] = useState("");
 
   //ETO YUNG KUNG MAGSEARCH NG PATIENT
   const search = async (name_search, pet_search) => {
@@ -74,11 +75,15 @@ const Details = ({ user }) => {
         })
         setRows(prevHolder)
       })
+      
 
     if (take.exists()) {
       const patientData = take.val();
       const bookingData = takeBooking.val();
       
+      const getService = await get(ref(db, "Bookings/" + bookingData.sched_date + "/" + name_search));
+      setServices(getService.val().services);
+
       const updatedIni = {
         petAddress: patientData.petAddress || "",
         changed: patientData.changed || "",
@@ -89,6 +94,7 @@ const Details = ({ user }) => {
         petAge: patientData.petAge || "",
         petImage: patientData.petImage || "",
         sched_date: bookingData ? bookingData.sched_date || "No upcoming appointment" : "No upcoming appointment",
+        sched_time: bookingData ? bookingData.sched_time || "No upcoming appointment" : "No upcoming appointment",
       };
 
       //for updating the fields with data taken from the database
@@ -100,19 +106,17 @@ const Details = ({ user }) => {
       formikRef.current.setFieldValue("petBirth", updatedIni.petBirth);
       formikRef.current.setFieldValue("petAge", updatedIni.petAge);
       formikRef.current.setFieldValue("sched_date", updatedIni.sched_date);
+      formikRef.current.setFieldValue("sched_time", updatedIni.sched_time);
 
       setImage(take.val().petImage);
 
       if (bookingData !== null) {
         if (bookingData.sched_time !== null || bookingData.sched_date !== null) {
           setBefore(bookingData.sched_date);
-          setBookTime(bookingData.sched_time);
         } else {
-      setBookTime("");
       setBefore("")
         }
       } else {
-     setBookTime("");
      setBefore("")
       }
 
@@ -123,62 +127,74 @@ const Details = ({ user }) => {
 
   //ETO NAMAN YUNG PARA SA PAG UPLOAD NG DATA IF MAY CHANGES
   const updateData = async (details) => {
-    if (
-      window.confirm(
-        "Are you sure you want to reschedule the patient's booking?"
-      )
-    ) {
-      if (details.sched_date !== null) {
-        try {
-          //this code is to remove the old booking
-          remove(ref(db, "Bookings/" + beforeDate + "/" + details.owner));
-          //this code is for updating the date ng patient
-          update(ref(db, "Owners/"+ details.owner + "/Booking" ), {sched_date : details.sched_date})
-          //eto ay i update ang booking para sa dashboard reference
-          await update(
-            ref(
-              db,
-              "Bookings/" +
-                details.sched_date +
-                "/" +
-                details.owner
-            ),
-            {
-              sched_time: bookTime,
-              ...details,
-              changed: "Yes",
-            },
-          )
-            //ETO NAMAN FOR THE EMAILING SHIT
-          //this property creates a temporary form na kukuha ng values from the formik
-          //para hawakan nya sa email natin
-          const templateParams = {
-            ...formikRef.current.values,
-          };
 
-          //eto naman ang method para magsend ng email to the user
-          //kasama rito ang serviceID, templateID, at yung PublicID, pati narin yung templateParams
-          emailjs
-            .send(
-              "service_n9xgj4k",
-              "template_il5gkh8",
-              templateParams,
-              "URnwalukoM1o5-Oay"
+    const currentDate = new Date();
+
+    const userDate = new Date(details.sched_date);
+
+    if(userDate >= currentDate){
+      if (
+        window.confirm(
+          "Are you sure you want to reschedule the patient's booking?"
+        )
+      ) {
+        if (details.sched_date !== null) {
+          try {
+            //this code is to remove the old booking
+            remove(ref(db, "Bookings/" + beforeDate + "/" + details.owner));
+            //this code is for updating the date ng patient
+            update(ref(db, "Owners/"+ details.owner + "/Booking" ), {sched_date : details.sched_date, sched_time: details.sched_time})
+            //eto ay i update ang booking para sa dashboard reference
+            await update(
+              ref(
+                db,
+                "Bookings/" +
+                  details.sched_date +
+                  "/" +
+                  details.owner
+              ),
+              {
+                services: serbisyo,
+                ...details,
+                changed: "Yes",
+              },
             )
-            .then(() => {
-              toast.success(
-                "Email has been sent sucessfully and record has been updated"
-              );
-            })
-            .catch((error) => {
-              toast.error("Error sending email:", error);
-            });
-        } catch (error) {
-          toast.error(error);
+              //ETO NAMAN FOR THE EMAILING SHIT
+            //this property creates a temporary form na kukuha ng values from the formik
+            //para hawakan nya sa email natin
+            const templateParams = {
+              ...formikRef.current.values,
+            };
+  
+            //eto naman ang method para magsend ng email to the user
+            //kasama rito ang serviceID, templateID, at yung PublicID, pati narin yung templateParams
+            emailjs
+              .send(
+                "service_n9xgj4k",
+                "template_il5gkh8",
+                templateParams,
+                "URnwalukoM1o5-Oay"
+              )
+              .then(() => {
+                toast.success(
+                  "Email has been sent sucessfully and record has been updated"
+                );
+              })
+              .catch((error) => {
+                toast.error("Error sending email:", error);
+              });
+          } catch (error) {
+            toast.error(error);
+          }
         }
+        navigate("/dashboard");
       }
-      navigate("/dashboard");
     }
+    else{
+      toast.error("Date is invalid")
+    }
+
+   
   };
 
   //ETO NAMAN YUNG PARA SA DELETE BUTTON
@@ -349,6 +365,19 @@ const Details = ({ user }) => {
                 name="sched_date"
                 error={!!touched.sched_date && !!errors.sched_date}
                 helperText={touched.sched_date && errors.sched_date}
+                sx={{ gridColumn: "span 1" }}
+              />
+               <TextField
+                fullWidth
+                variant="filled"
+                type="text"
+                label="Appointment time"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.sched_time}
+                name="sched_time"
+                error={!!touched.sched_time && !!errors.sched_time}
+                helperText={touched.sched_time && errors.sched_time}
                 sx={{ gridColumn: "span 1" }}
               />
             </Box>

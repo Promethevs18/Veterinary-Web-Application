@@ -29,6 +29,8 @@ const Dashboard = ({ user }) => {
   const [overall, setOverAll] = useState([]);
   const [allBreeds, setAllBreeds] = useState([])
   const [petAddress, setPetAddress] = useState([])
+  const [allServices, setAllServices] = useState([])
+  const [allAges, setAllAges] = useState([])
 
   //time updater
   const UpdateTime = () => {
@@ -162,6 +164,69 @@ const Dashboard = ({ user }) => {
 
   },[])
 
+  //This is to get all the pet's ages and their count
+  useEffect(() =>{
+    const getAll = onValue(ref(db, "Owners and Pets/"),
+    (snapshot) =>{     
+      const ageCount = [];
+      snapshot.forEach((elemento) =>{
+        elemento.forEach((element)=>{
+          const ages = element.child("petAge").val();
+          if(ages){
+            if(ageCount[ages]){
+              ageCount[ages] += 1;
+            }
+            else{
+              ageCount[ages] = 1;
+            }
+          }
+        });
+      });
+
+      const uniquesArray = [];
+
+      for(const ages in ageCount){
+        uniquesArray.push({id: ages, value: ageCount[ages]});
+      }
+      setAllAges(uniquesArray);
+
+    }, (error) =>{
+      console.log(error)
+    })
+
+  },[])
+
+    //This is to get all the pet's services and their count
+    useEffect(() =>{
+      const getAll = onValue(ref(db, "Bookings/"),
+      (snapshot) =>{     
+        const services = [];
+        snapshot.forEach((elemento) =>{
+          elemento.forEach((element)=>{
+            const service = element.child("services").val();
+            if(service){
+              if(services[service]){
+                services[service] += 1;
+              }
+              else{
+                services[service] = 1;
+              }
+            }
+          });
+        });
+
+        const uniquesArray = [];
+        for(const service in services){
+          uniquesArray.push({id: service, value: services[service]});
+        }
+        setAllServices(uniquesArray);
+  
+      }, (error) =>{
+        console.log(error)
+      })
+  
+    },[])
+  
 
   //loading updater
   if(loading){
@@ -193,11 +258,11 @@ const Dashboard = ({ user }) => {
                   color = {colors.eggshell[100]}
                   fontWeight="bold"
                   sx={{m:"5px 0 0 0"}}>
-                    Pets Addresses
+                    Pets Cities
               </Typography>
-            </Box>
-           <Box height="250px" justifyContent="space-evenly" display="flex">
-      {/*Pie*/}
+          </Box>
+           <Box height="250px"justifyContent="space-evenly" display="flex">
+      {/*Pets breed pie*/}
         <ResponsivePie
           data={allBreeds}
           theme={{
@@ -266,7 +331,7 @@ const Dashboard = ({ user }) => {
             },
           ]}
         /> 
-
+      {/*Pets address pie*/}
         <ResponsivePie
         data={petAddress}
         theme={{
@@ -335,8 +400,164 @@ const Dashboard = ({ user }) => {
           },
         ]}
       /> 
-        
     </Box>
+    <Box justifyContent="space-around" display="flex" >
+      <Typography 
+        variant="h2"
+        color={colors.eggshell[100]}
+        fontWeight="bold"
+        sx={{m:"5px 0 0 0"}}>
+          Pet ages
+        </Typography>
+        <Typography 
+        variant="h2"
+        color={colors.eggshell[100]}
+        fontWeight="bold"
+        sx={{m:"5px 0 0 0"}}>
+          Services Done
+        </Typography>
+    </Box>
+    <Box height="250px"justifyContent="space-evenly" display="flex">
+      {/*Pets ages pie*/}
+      <ResponsivePie
+          data={allAges}
+          theme={{
+            axis: {
+              domain: {
+                line: {
+                  stroke: colors.bud[100],
+                },
+              },
+              legend: {
+                text: {
+                  fill: colors.bud[100],
+                },
+              },
+              ticks: {
+                line: {
+                  stroke: colors.bud[100],
+                  strokeWidth: 1,
+                },
+                text: {
+                  fill: colors.bud[100],
+                },
+              },
+            },
+            legends: {
+              text: {
+                fill: colors.bud[100],
+              },
+            },
+          }}
+          margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+          innerRadius={0.5}
+          padAngle={0.7}
+          cornerRadius={3}
+          activeOuterRadiusOffset={8}
+          borderColor={{
+            from: "color",
+            modifiers: [["darker", 0.2]],
+          }}
+          arcLinkLabelsSkipAngle={10}
+          arcLinkLabelsTextColor={colors.bud[100]}
+          arcLinkLabelsThickness={2}
+          arcLinkLabelsColor={colors.bud[100]}
+          arcLabelsRadiusOffset={0.4}
+          arcLabelsSkipAngle={7}
+          arcLabelsTextColor="black"
+          isInteractive = {false}
+          defs={[
+            {
+              id: "dots",
+              type: "patternDots",
+              background: "inherit",
+              color: colors.bud[100],
+              size: 4,
+              padding: 1,
+              stagger: true,
+            },
+            {
+              id: "lines",
+              type: "patternLines",
+              background: "inherit",
+              color: colors.bud[100],
+              rotation: -45,
+              lineWidth: 6,
+              spacing: 10,
+            },
+          ]}
+        /> 
+       {/*Pets services pie*/}
+     <ResponsivePie
+          data={allServices}
+          theme={{
+            axis: {
+              domain: {
+                line: {
+                  stroke: colors.bud[100],
+                },
+              },
+              legend: {
+                text: {
+                  fill: colors.bud[100],
+                },
+              },
+              ticks: {
+                line: {
+                  stroke: colors.bud[100],
+                  strokeWidth: 1,
+                },
+                text: {
+                  fill: colors.bud[100],
+                },
+              },
+            },
+            legends: {
+              text: {
+                fill: colors.bud[100],
+              },
+            },
+          }}
+          margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+          innerRadius={0.5}
+          padAngle={0.7}
+          cornerRadius={3}
+          activeOuterRadiusOffset={8}
+          borderColor={{
+            from: "color",
+            modifiers: [["darker", 0.2]],
+          }}
+          arcLinkLabelsSkipAngle={10}
+          arcLinkLabelsTextColor={colors.bud[100]}
+          arcLinkLabelsThickness={2}
+          arcLinkLabelsColor={colors.bud[100]}
+          arcLabelsRadiusOffset={0.4}
+          arcLabelsSkipAngle={7}
+          arcLabelsTextColor="black"
+          isInteractive = {false}
+          defs={[
+            {
+              id: "dots",
+              type: "patternDots",
+              background: "inherit",
+              color: colors.bud[100],
+              size: 4,
+              padding: 1,
+              stagger: true,
+            },
+            {
+              id: "lines",
+              type: "patternLines",
+              background: "inherit",
+              color: colors.bud[100],
+              rotation: -45,
+              lineWidth: 6,
+              spacing: 10,
+            },
+          ]}
+        />   
+      </Box>
+    
           <div className="board" style={{background: colors.moss[700]}}>
             <table width="100%">
               <thead>
@@ -420,7 +641,7 @@ const Dashboard = ({ user }) => {
           headerToolbar={{
             left: "prev, next",
             center: "title",
-            right: "timeGridWeek, timeGridDay"
+            right: "timeGridWeek, timeGridDay, dayGridMonth"
           }}
           duration={{days: 5}}
           dayMaxEvents={false}
