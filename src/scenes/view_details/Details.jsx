@@ -81,8 +81,14 @@ const Details = ({ user }) => {
       const patientData = take.val();
       const bookingData = takeBooking.val();
       
-      const getService = await get(ref(db, "Bookings/" + bookingData.sched_date + "/" + name_search));
-      setServices(getService.val().services);
+      if(bookingData != null){
+        const getService = await get(ref(db, "Bookings/" + bookingData.sched_date + "/" + name_search));
+        setServices(getService.val().services);
+      }
+      else{
+        setServices("No current service")
+      }
+    
 
       const updatedIni = {
         petAddress: patientData.petAddress || "",
@@ -283,7 +289,7 @@ const Details = ({ user }) => {
               ></Button>
             </Box>
             <Box
-              display="grid"
+              display="flex"
               gap="30px"
               gridTemplateColumns="repeat(4, minmax(0, 1fr))"
             >
@@ -354,33 +360,45 @@ const Details = ({ user }) => {
                 helperText={touched.petAge && errors.petAge}
                 sx={{ gridColumn: "span 1" }}
               />
-              <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Appointment Date"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.sched_date}
-                name="sched_date"
-                error={!!touched.sched_date && !!errors.sched_date}
-                helperText={touched.sched_date && errors.sched_date}
-                sx={{ gridColumn: "span 1" }}
-              />
-               <TextField
-                fullWidth
-                variant="filled"
-                type="text"
-                label="Appointment time"
-                onBlur={handleBlur}
-                onChange={handleChange}
-                value={values.sched_time}
-                name="sched_time"
-                error={!!touched.sched_time && !!errors.sched_time}
-                helperText={touched.sched_time && errors.sched_time}
-                sx={{ gridColumn: "span 1" }}
-              />
             </Box>
+               <Box m="50px" display="flex" justifyContent="center">
+                  <Typography 
+                  variant="h2"
+                  color={colors.eggshell[100]}
+                  fontWeight="bold"
+                  m="20px">
+                    Current appointment details
+                  </Typography>
+                </Box>
+              <Box display="flex">
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Appointment Date"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.sched_date}
+                    name="sched_date"
+                    error={!!touched.sched_date && !!errors.sched_date}
+                    helperText={touched.sched_date && errors.sched_date}
+                    sx={{ gridColumn: "span 1", maxWidth: "50%", marginRight: "15px" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Appointment time"
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.sched_time}
+                    name="sched_time"
+                    error={!!touched.sched_time && !!errors.sched_time}
+                    helperText={touched.sched_time && errors.sched_time}
+                    sx={{ gridColumn: "span 1", maxWidth: "50%", marginRight: "15px" }}
+                  />
+              </Box>
+            
             {/* Buttons */}
             <Box display="flex" justifyContent="center" m="50px">
             {beforeDate !== "" && (

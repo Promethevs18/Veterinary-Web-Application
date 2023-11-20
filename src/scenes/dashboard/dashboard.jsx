@@ -139,7 +139,7 @@ const Dashboard = ({ user }) => {
       const addressCount = [];
       snapshot.forEach((elemento) =>{
         elemento.forEach((element)=>{
-          const addresses = element.child("cities").val();
+          const addresses = element.child("city").val();
           if(addresses){
             if(addressCount[addresses]){
               addressCount[addresses] += 1;
@@ -641,7 +641,7 @@ const Dashboard = ({ user }) => {
           headerToolbar={{
             left: "prev, next",
             center: "title",
-            right: "timeGridWeek, timeGridDay, dayGridMonth"
+            right: "timeGridDay, timeGridWeek, dayGridMonth"
           }}
           duration={{days: 5}}
           dayMaxEvents={false}
