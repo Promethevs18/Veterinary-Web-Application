@@ -139,7 +139,7 @@ const Dashboard = ({ user }) => {
       const addressCount = [];
       snapshot.forEach((elemento) =>{
         elemento.forEach((element)=>{
-          const addresses = element.child("petAddress").val();
+          const addresses = element.child("cities").val();
           if(addresses){
             if(addressCount[addresses]){
               addressCount[addresses] += 1;
