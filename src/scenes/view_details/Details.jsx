@@ -3,7 +3,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { Formik, Form } from "formik";
 import * as yup from "yup";
 import { toast } from "react-toastify";
-import { Avatar, Box, Button, TextField, Typography, colors, useTheme } from "@mui/material";
+import { Avatar, Box, Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Typography, useTheme } from "@mui/material";
 import Header from "../../components/Header";
 import { get, getDatabase, onValue, ref, remove, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +21,7 @@ const initialValues = {
   petAge: "",
   sched_date: "",
   sched_time: "",
+  notes: ""
 };
 
 const detailSchema = yup.object().shape({
@@ -42,6 +43,12 @@ const Details = ({ user }) => {
   const [beforeDate, setBefore] = useState("");
   const [rows, setRows] = useState([]);
   const [serbisyo, setServices] = useState("");
+  const [stats, setStats] = useState("");
+
+  //ETO NAMAN FOR THE CHANGING RADIO BUTTONS
+  const handleRadio = (event) => {
+    setStats(event.target.value);
+  };
 
   //ETO YUNG KUNG MAGSEARCH NG PATIENT
   const search = async (name_search, pet_search) => {
@@ -84,6 +91,7 @@ const Details = ({ user }) => {
       if(bookingData != null){
         const getService = await get(ref(db, "Bookings/" + bookingData.sched_date + "/" + name_search));
         setServices(getService.val().services);
+        setStats(getService.val().status)
       }
       else{
         setServices("No current service")
@@ -101,6 +109,7 @@ const Details = ({ user }) => {
         petImage: patientData.petImage || "",
         sched_date: bookingData ? bookingData.sched_date || "No upcoming appointment" : "No upcoming appointment",
         sched_time: bookingData ? bookingData.sched_time || "No upcoming appointment" : "No upcoming appointment",
+        notes: patientData.notes || ""
       };
 
       //for updating the fields with data taken from the database
@@ -113,9 +122,9 @@ const Details = ({ user }) => {
       formikRef.current.setFieldValue("petAge", updatedIni.petAge);
       formikRef.current.setFieldValue("sched_date", updatedIni.sched_date);
       formikRef.current.setFieldValue("sched_time", updatedIni.sched_time);
-
+      formikRef.current.setFieldValue("notes", updatedIni.notes)
       setImage(take.val().petImage);
-
+      
       if (bookingData !== null) {
         if (bookingData.sched_time !== null || bookingData.sched_date !== null) {
           setBefore(bookingData.sched_date);
@@ -162,8 +171,20 @@ const Details = ({ user }) => {
               {
                 services: serbisyo,
                 ...details,
+                status: stats,
                 changed: "Yes",
               },
+            )
+            await update(
+              ref(
+                db, 
+                "Owners and Pets/" +
+                details.owner + "/" +
+                details.petName
+              ),
+              {
+                notes: details.notes
+              }
             )
               //ETO NAMAN FOR THE EMAILING SHIT
             //this property creates a temporary form na kukuha ng values from the formik
@@ -305,7 +326,6 @@ const Details = ({ user }) => {
                 disabled={true}
                 sx={{ gridColumn: "span 2" }}
               />
-
               <TextField
                 variant="filled"
                 fullWidth
@@ -361,6 +381,19 @@ const Details = ({ user }) => {
                 sx={{ gridColumn: "span 1" }}
               />
             </Box>
+            <Box m="20px">
+            <TextField
+                variant="filled"
+                fullWidth
+                type="text"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                label="Notes"
+                name="notes"
+                value={values.notes}
+                sx={{ gridColumn: "span 2" }}
+              />
+            </Box>
                <Box m="50px" display="flex" justifyContent="center">
                   <Typography 
                   variant="h2"
@@ -397,6 +430,25 @@ const Details = ({ user }) => {
                     helperText={touched.sched_time && errors.sched_time}
                     sx={{ gridColumn: "span 1", maxWidth: "50%", marginRight: "15px" }}
                   />
+              </Box>
+
+              <Box display="flex" marginTop="20px">
+                <FormControl>
+                    <FormLabel id="bookingsStats">Booking status</FormLabel>
+                      <RadioGroup
+                      aria-labelledby="description"
+                      defaultValue="LB"
+                      name="radio-buttons-group"
+                      row
+                      value={stats}
+                      onChange={handleRadio}
+                      >
+                        <FormControlLabel value="appointed" control={<Radio />} label="Appointed" />
+                        <FormControlLabel value="arrived" control={<Radio />} label="Arrived" />
+                        <FormControlLabel value="ongoing" control={<Radio />} label="Ongoing" />
+                        <FormControlLabel value="finished" control={<Radio />} label="Finished" />
+                      </RadioGroup>
+                 </FormControl>
               </Box>
             
             {/* Buttons */}

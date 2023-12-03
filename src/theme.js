@@ -133,7 +133,7 @@ export const themeSettings = (mode) => {
               main: colors.quincy[500],
             },
             secondary: {
-              main: colors.taupe[500],
+              main: colors.eggshell[700],
             },
             neutral: {
               dark: colors.eggshell[700],
@@ -141,7 +141,7 @@ export const themeSettings = (mode) => {
               light: colors.eggshell[100],
             },
             background: {
-              default: colors.quincy[500],
+              default: colors.quincy[600],
             },
             reddish: {
               main: colors.moss[500],
