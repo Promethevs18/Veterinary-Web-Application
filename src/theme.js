@@ -133,7 +133,7 @@ export const themeSettings = (mode) => {
               main: colors.quincy[500],
             },
             secondary: {
-              main: colors.eggshell[700],
+              main: colors.taupe[500],
             },
             neutral: {
               dark: colors.eggshell[700],

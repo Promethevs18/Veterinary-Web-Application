@@ -175,17 +175,7 @@ const Details = ({ user }) => {
                 changed: "Yes",
               },
             )
-            await update(
-              ref(
-                db, 
-                "Owners and Pets/" +
-                details.owner + "/" +
-                details.petName
-              ),
-              {
-                notes: details.notes
-              }
-            )
+            
               //ETO NAMAN FOR THE EMAILING SHIT
             //this property creates a temporary form na kukuha ng values from the formik
             //para hawakan nya sa email natin
@@ -223,6 +213,34 @@ const Details = ({ user }) => {
 
    
   };
+
+  const updateStatus = async (owner, pet, notes, date) => {
+    await update(
+      ref(
+        db, 
+        "Owners and Pets/" +
+       owner + "/" +
+       pet
+      ),
+      {
+        notes: notes
+      }
+    )
+    await update(
+      ref(
+        db,
+        "Bookings/" +
+          date +
+          "/" +
+          owner
+      ),
+      {
+        status: stats,
+      },
+    ).then(() => {
+      toast.success("Status updated")
+    })
+  }
 
   //ETO NAMAN YUNG PARA SA DELETE BUTTON
   const handleDelete = async (id, petID) => {
@@ -449,6 +467,7 @@ const Details = ({ user }) => {
                         <FormControlLabel value="finished" control={<Radio />} label="Finished" />
                       </RadioGroup>
                  </FormControl>
+                 <Button color="secondary" variant="contained" onClick={() => updateStatus(values.owner, values.petName, values.notes, values.sched_date)}>Update Status</Button>
               </Box>
             
             {/* Buttons */}

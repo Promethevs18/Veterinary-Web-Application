@@ -129,7 +129,7 @@ const Dashboard = ({ user }) => {
     }, (error) =>{
       console.log(error)
     })
-
+    getAll();
   },[])
 
   //This is to get all the pet's addresses and their count
@@ -567,7 +567,7 @@ const Dashboard = ({ user }) => {
                     Scheduled Time
                   </td>
                   <td style={{ background: colors.bud[700] }}>
-                    Scheduled Date
+                    Booking Status
                   </td>
                   <td style={{ background: colors.bud[700] }}>
                     Service Selected
@@ -593,7 +593,7 @@ const Dashboard = ({ user }) => {
                     </td>
                     <td className="active">
                       <p style={{ color: colors.taupe[200] }}>
-                        {item.sched_date}
+                        {item.status}
                       </p>
                     </td>
                     <td className="active">
